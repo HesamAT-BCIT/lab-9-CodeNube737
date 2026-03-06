@@ -9,8 +9,7 @@ from flask import request, jsonify, render_template, session, redirect, url_for
 from . import auth_bp
 import requests
 from config import WEB_API_KEY
-from firebase import db
-from firebase_admin import auth
+from firebase import db, auth
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
