@@ -15,6 +15,8 @@ from decorators.auth import require_api_key, require_jwt
 from utils.profile import get_profile_data, get_profile_doc_ref, set_profile
 from utils.validation import normalize_profile_data, require_json_content_type, validate_profile_data
 from . import api_bp
+import json
+import os
 
 @api_bp.get("/profile")
 @require_jwt
@@ -154,3 +156,16 @@ def api_sensor_data(uid: str):
     })
 
     return jsonify({"message": "Sensor data received successfully", "id": doc_id}), 201
+
+
+@api_bp.get("/sensor_data")
+@require_jwt
+def api_get_sensor_data(uid: str):
+    """Return mock sensor data from local JSON file."""
+    sensor_file = os.path.join(os.path.dirname(__file__), '..', '..', 'mock_sensor_data.json')
+    try:
+        with open(sensor_file, 'r') as f:
+            sensor_data = json.load(f)
+    except Exception as e:
+        return jsonify({"error": f"Failed to load sensor data: {str(e)}"}), 500
+    return jsonify(sensor_data), 200
