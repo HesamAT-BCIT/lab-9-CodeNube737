@@ -1,7 +1,7 @@
 import os
 from flask import request, jsonify
 from functools import wraps
-import firebase_admin.auth
+from firebase_admin import auth
 
 
 
@@ -39,6 +39,7 @@ def require_jwt(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         auth_header = request.headers.get("Authorization")
+        #print("DEBUG: Authorization header:", auth_header) // do not use in production, will leak sensitive info in logs... for debug only
 
         if not auth_header:
             return jsonify({"error": "Missing Authorization header"}), 401
@@ -55,6 +56,7 @@ def require_jwt(f):
             uid = decoded_token["uid"]
             # Inject uid into the route function
             return f(*args, uid=uid, **kwargs)
-        except Exception:
+        except Exception as e:
+            print("DEBUG: JWT verification error:", e)
             return jsonify({"error": "Invalid or expired token"}), 401
     return decorated_function

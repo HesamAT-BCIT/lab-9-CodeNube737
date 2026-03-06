@@ -3,9 +3,14 @@
 
 <head>
     <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
+
 <body>
+    <script>
+        const token = "{{ jwt_token }}";
+    </script>
     <h1>Welcome, {{ first_name }}</h1>
     <p>Use the navigation below to manage your profile.</p>
 
@@ -17,11 +22,124 @@
         <li><strong>Student ID:</strong> {{ profile.student_id }}</li>
     </ul>
     {% endif %}
+    <div class="chart-container">
+        <canvas id="sensorChart"></canvas>
+    </div>
 
     <ul>
         <li><a href="{{ url_for('profile.profile') }}">Create/Update Profile</a></li>
         <li><a href="{{ url_for('auth.logout') }}">Logout</a></li>
     </ul>
+
+    <script>
+        let chart;
+
+
+        async function fetchSensorData() {
+            const response = await fetch('/api/sensor_data', {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+            if (response.status === 401) {
+                alert("Session expired. Please log in again.");
+                window.location.href = "/login";
+                return null;
+            }
+            if (!response.ok) {
+                return null;
+            }
+            return await response.json();
+        }
+
+        function processData(data) {
+            // Assume data is an array of objects with timestamp, temperature, humidity
+            const labels = data.map(d => d.timestamp);
+            const temp = data.map(d => d.temperature);
+            const humidity = data.map(d => d.humidity);
+            return { labels, temp, humidity };
+        }
+
+        async function updateChart() {
+            const sensorData = await fetchSensorData();
+            if (!sensorData) return;
+            const { labels, temp, humidity } = processData(sensorData);
+            if (!chart) {
+                const ctx = document.getElementById('sensorChart').getContext('2d');
+                chart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: 'Temperature (°C)',
+                                data: temp,
+                                borderColor: 'rgba(255, 99, 132, 1)',
+                                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                                yAxisID: 'y',
+                            },
+                            {
+                                label: 'Humidity (%)',
+                                data: humidity,
+                                borderColor: 'rgba(54, 162, 235, 1)',
+                                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                                yAxisID: 'y1',
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        interaction: {
+                            mode: 'nearest',
+                            intersect: false
+                        },
+                        scales: {
+                            x: {
+                                type: 'time',
+                                time: {
+                                    unit: 'minute',
+                                    tooltipFormat: 'YYYY-MM-DD HH:mm:ss'
+                                },
+                                title: {
+                                    display: true,
+                                    text: 'Timestamp'
+                                }
+                            },
+                            y: {
+                                type: 'linear',
+                                position: 'left',
+                                title: {
+                                    display: true,
+                                    text: 'Temperature (°C)'
+                                }
+                            },
+                            y1: {
+                                type: 'linear',
+                                position: 'right',
+                                title: {
+                                    display: true,
+                                    text: 'Humidity (%)'
+                                },
+                                grid: {
+                                    drawOnChartArea: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                chart.data.labels = labels;
+                chart.data.datasets[0].data = temp;
+                chart.data.datasets[1].data = humidity;
+                chart.update();
+            }
+        }
+
+        // Initial chart load
+        updateChart();
+        // Poll every 5 seconds
+        setInterval(updateChart, 5000);
+    </script>
 </body>
 
 </html>
