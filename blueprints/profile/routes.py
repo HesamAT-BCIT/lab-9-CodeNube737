@@ -19,7 +19,7 @@ def profile():
     """HTML form to create/update the current user's profile."""
     current_user = get_current_user()
     if not current_user:
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
 
     if request.method == "GET":
         profile_data = get_profile_data(current_user)
@@ -36,5 +36,5 @@ def profile():
 
     normalized = normalize_profile_data(first_name, last_name, student_id)
     set_profile(current_user, normalized, merge=False)
-    return redirect(url_for("home"))
+    return redirect(url_for("dashboard.home"))
 

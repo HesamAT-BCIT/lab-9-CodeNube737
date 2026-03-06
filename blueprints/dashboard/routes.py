@@ -20,6 +20,6 @@ def home():
     current_user = get_current_user()
     if current_user:
         profile_data = get_profile_data(current_user)
-        return render_template("dashboard.html", first_name=profile_data.get('first_name', ''), jwt_token=session.get('jwt_token'))
-    return redirect(url_for("login"))
+        return render_template("dashboard.html", first_name=profile_data.get('first_name', ''), profile=profile_data, jwt_token=session.get('jwt_token'))
+    return redirect(url_for("auth.login"))
 

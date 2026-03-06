@@ -8,8 +8,9 @@
 from flask import request, jsonify, render_template, session, redirect, url_for
 from . import auth_bp
 import requests
-from config import WEB_API_KEY
-from firebase import db, auth
+from config import Config
+from firebase import db
+from firebase_admin import auth
 
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
@@ -30,7 +31,7 @@ def login():
 
     # Use Firebase Identity REST API to authenticate
     try:
-        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={WEB_API_KEY}"
+        url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={Config.WEB_API_KEY}"
         payload = {
             "email": email,
             "password": password,
@@ -47,7 +48,7 @@ def login():
             session["username"] = uid
             session["email"] = email
             session["jwt_token"] = token_data.get("idToken")
-            return redirect(url_for("home"))
+            return redirect(url_for("dashboard.home"))
 
         error_data = res.json().get("error", {})
         error_message = error_data.get("message", "Invalid credentials")
@@ -90,7 +91,7 @@ def signup():
             "role": "user"
         })
 
-        return redirect(url_for("login"))
+        return redirect(url_for("auth.login"))
     except Exception as e:
         error_message = str(e)
         if "email-already-exists" in error_message:
@@ -106,7 +107,7 @@ def signup():
 def logout():
     """Clear the session and return to login."""
     session.clear()
-    return redirect(url_for("login"))
+    return redirect(url_for("auth.login"))
 
 
 def api_signup():
@@ -151,7 +152,7 @@ def api_login():
     if not email or not password:
         return jsonify({"error": "Email and password are required"}), 400
 
-    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={WEB_API_KEY}"
+    url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={Config.WEB_API_KEY}"
     payload = {
         "email": email,
         "password": password,

@@ -2,15 +2,8 @@ from __future__ import annotations
 
 from functools import wraps
 from typing import Optional, Tuple, Union
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify, Response
+from flask import Flask
 from flask.typing import ResponseReturnValue
-import firebase_admin
-from firebase_admin import credentials, firestore, auth
-from firebase_admin.firestore import DocumentReference
-import os
-import re
-import requests
-import time
 
 from flask import Flask
 from config import Config
