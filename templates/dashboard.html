@@ -4,6 +4,8 @@
 <head>
     <title>Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1"></script>
 </head>
 
 
@@ -12,7 +14,7 @@
         const token = "{{ jwt_token }}";
     </script>
     <h1>Welcome, {{ first_name }}</h1>
-    <p>Use the navigation below to manage your profile.</p>
+    <p>Use the navigation at the bottom of the page to manage your profile.</p>
 
     {% if profile %}
     <h2>Your Profile</h2>
@@ -96,9 +98,14 @@
                         scales: {
                             x: {
                                 type: 'time',
+                                adapters: {
+                                    luxon: {
+                                        // Luxon adapter is now included
+                                    }
+                                },
                                 time: {
                                     unit: 'minute',
-                                    tooltipFormat: 'YYYY-MM-DD HH:mm:ss'
+                                    tooltipFormat: 'yyyy-MM-dd HH:mm:ss' // changed from 'YYYY-MM-DD HH:mm:ss' because Edge browser api expects lowercase for year and month, session 3.0 of luxon and chartjs-adapter-luxon for details
                                 },
                                 title: {
                                     display: true,
