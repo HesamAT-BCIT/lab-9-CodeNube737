@@ -361,4 +361,6 @@ Instead of just fetching data once when the page loads, use HTTP polling to repe
 1. Ensure your `mock_sensor_data.json` file is present and properly formatted.
 2. Log in to the web application and view the dashboard.
 3. The chart should display the 50 sensor data points immediately.
-4. Open the Network tab in your browser's Developer Tools and verify that a new `GET` request to `/api/sensor_data` is made exactly every 5 seconds.
+4. Open the Network tab in your browser's Developer Tools (using F12) and verify that a new `GET` request to `/api/sensor_data` is made exactly every 5 seconds.
+   - confirmed to run every 5000 ms: 
+   ![Browser Developer Tools Network Tab](browserDeveloperTab.png)
